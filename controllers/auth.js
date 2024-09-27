@@ -8,6 +8,10 @@ router.get("/sign-up", (req, res) => {
   res.render("auth/sign-up.ejs");
 });
 
+router.get("/sign-in", (req, res) => {
+  res.render("auth/sign-in.ejs");
+});
+
 router.post("/sign-up", async (req, res) => {
   const userInDatabase = await User.findOne({ username: req.body.username });
 
@@ -24,6 +28,25 @@ router.post("/sign-up", async (req, res) => {
 
   const user = await User.create(req.body);
   res.send(`Thanks for signing up ${user.username}`);
+});
+
+router.post("/sign-in", async (req, res) => {
+  const userInDatabase = await User.findOne({ username: req.body.username });
+
+  if (!userInDatabase) {
+    return res.send("Login failed. Please try again.");
+  }
+
+  const validPassword = bcrypt.compareSync(
+    req.body.password,
+    userInDatabase.password
+  );
+
+  if (!validPassword) {
+    return res.send("Login failed. Please try again.");
+  }
+
+  res.send(`You logged in successfully! Welcome ${userInDatabase.username}`);
 });
 
 module.exports = router;
